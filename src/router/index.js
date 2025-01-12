@@ -7,7 +7,7 @@ import store from '../store';
 const routes = [
   { path: '/register', component: UserRegister },
   { path: '/login', component: UserLogin },
-  { path: '/entries', component: TravelEntries },
+  { path: '/entries', component: TravelEntries, name: 'TravelEntries' },
 ];
 
 const router = createRouter({

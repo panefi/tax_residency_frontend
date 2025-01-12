@@ -13,9 +13,18 @@ export const getTravelEntries = async () => {
 
 export const addTravelEntry = async (entry) => {
   try {
-    const response = await axios.post(`${API_URL}/travel/travel-entries`, entry);
+    const response = await axios.post(`${API_URL}/travel/add_travel`, entry);
     return response.data;
   } catch (error) {
     throw new Error('Failed to add travel entry');
+  }
+};
+
+export const deleteTravelEntry = async (id) => {
+  try {
+    const response = await axios.delete(`${API_URL}/travel-entries/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to delete travel entry');
   }
 }; 

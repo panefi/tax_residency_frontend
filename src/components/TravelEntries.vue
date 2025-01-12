@@ -1,6 +1,14 @@
 <template>
   <div>
     <h2>Travel Entries</h2>
+    
+    <!-- Display Custom Alert -->
+    <AlertMessage
+      :message="message"
+      :type="messageType"
+      @close="clearMessage"
+    />
+    
     <div v-if="isLoading">
       <!-- Loading Spinner -->
       <div class="d-flex justify-content-center">
@@ -11,7 +19,7 @@
     </div>
     <div v-else>
       <!-- Search Bar -->
-      <!-- <div class="mb-3">
+      <div class="mb-3">
         <input
           type="text"
           class="form-control"
@@ -19,10 +27,17 @@
           v-model="searchQuery"
           @input="filterEntries"
         />
-      </div> -->
+      </div>
 
       <!-- Add Trip Button -->
       <button @click="addEntry" class="btn btn-success mb-3">Add Trip</button>
+
+      <!-- Add Trip Modal -->
+      <AddTravelEntryModal
+        :visible="showAddModal"
+        @add-entry="handleAddEntry"
+        @close="showAddModal = false"
+      />
 
       <!-- Responsive Table -->
       <div class="table-responsive">
@@ -32,7 +47,6 @@
               <th scope="col">Destination</th>
               <th scope="col">Depart</th>
               <th scope="col">Return</th>
-              <!-- <th scope="col">Actions</th> -->
             </tr>
           </thead>
           <tbody>
@@ -40,11 +54,6 @@
               <td>{{ entry.destination }}</td>
               <td>{{ entry.departure }}</td>
               <td>{{ entry.arrival }}</td>
-              <!-- <td>
-                <button @click="viewDetails(entry.id)" class="btn btn-primary btn-sm me-2">View</button>
-                <button @click="editEntry(entry.id)" class="btn btn-warning btn-sm me-2">Edit</button>
-                <button @click="deleteEntry(entry.id)" class="btn btn-danger btn-sm">Delete</button>
-              </td> -->
             </tr>
           </tbody>
         </table>
@@ -75,16 +84,23 @@
 
 <script>
 import { mapState } from 'vuex';
+import AddTravelEntryModal from './AddTravelEntryModal.vue';
+import AlertMessage from './AlertMessage.vue';
 
 export default {
   name: 'TravelEntries',
+  components: {
+    AddTravelEntryModal,
+    AlertMessage,
+  },
   data() {
     return {
-      newEntry: '',
       showAddModal: false,
       currentPage: 1,
       entriesPerPage: 10,
       searchQuery: '',
+      message: '',
+      messageType: '',
     };
   },
   computed: {
@@ -104,45 +120,38 @@ export default {
       return Math.ceil(this.filteredEntries.length / this.entriesPerPage);
     },
     paginatedEntries() {
-      if (!Array.isArray(this.filteredEntries)) {
-        return [];
-      }
       const start = (this.currentPage - 1) * this.entriesPerPage;
       const end = start + this.entriesPerPage;
       return this.filteredEntries.slice(start, end);
     },
+    messageClass() {
+      if (this.messageType === 'success') return 'alert-success';
+      if (this.messageType === 'warning') return 'alert-warning';
+      if (this.messageType === 'error') return 'alert-danger';
+      return '';
+    },
   },
   methods: {
     addEntry() {
-      if (this.newEntry.trim() === '') {
-        alert('Please enter a destination.');
-        return;
-      }
+      this.showAddModal = true;
+    },
+    handleAddEntry(entry) {
       this.$store
-        .dispatch('addTravelEntry', { destination: this.newEntry })
-        .then(() => {
-          this.newEntry = '';
+        .dispatch('addTravelEntry', entry)
+        .then((newEntry) => {
+          if (newEntry) {
+            this.message = 'Travel entry added successfully!';
+            this.messageType = 'success';
+          } else {
+            this.message = 'No data returned from addTravelEntry action.';
+            this.messageType = 'warning';
+          }
         })
         .catch((error) => {
           console.error('Failed to add entry:', error);
-          // Optionally, display an error message to the user
+          this.message = 'Failed to add travel entry.';
+          this.messageType = 'error';
         });
-    },
-    viewDetails(id) {
-      this.$router.push({ name: 'TravelEntryDetail', params: { id } });
-    },
-    editEntry(id) {
-      this.$router.push({ name: 'EditTravelEntry', params: { id } });
-    },
-    deleteEntry(id) {
-      if (confirm('Are you sure you want to delete this entry?')) {
-        this.$store
-          .dispatch('deleteTravelEntry', id)
-          .catch((error) => {
-            console.error('Failed to delete entry:', error);
-            // Optionally, display an error message to the user
-          });
-      }
     },
     changePage(page) {
       if (page >= 1 && page <= this.totalPages) {
@@ -152,6 +161,10 @@ export default {
     filterEntries() {
       this.currentPage = 1;
     },
+    clearMessage() {
+      this.message = '';
+      this.messageType = '';
+    },
   },
   mounted() {
     if (this.$store.state.isAuthenticated) {
@@ -159,8 +172,11 @@ export default {
         .dispatch('fetchTravelEntries')
         .catch((error) => {
           console.error('Failed to fetch entries:', error);
-          // Handle error if needed
+          alert('Failed to fetch travel entries.');
         });
+    } else {
+      // If not authenticated, redirect to login
+      this.$router.push('/login');
     }
   },
 };
@@ -196,5 +212,22 @@ td {
 .btn-sm {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
+}
+
+/* Alert Styles */
+.alert {
+  position: relative;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+}
+.btn-close {
+  position: absolute;
+  top: 0;
+  right: 0.75rem;
+  padding: 1rem;
+  background: none;
+  border: none;
 }
 </style>

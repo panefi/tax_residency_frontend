@@ -24,6 +24,7 @@ export default {
     return {
       username: '',
       password: '',
+      error: '',
     };
   },
   methods: {
@@ -40,11 +41,13 @@ export default {
     },
   },
 };
-</script> 
+</script>
 
 <style scoped>
-
 .form-group {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
+}
+.container {
+  max-width: 500px;
 }
 </style>

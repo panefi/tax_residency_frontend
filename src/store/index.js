@@ -7,30 +7,37 @@ export default createStore({
   state: {
     isAuthenticated: !!localStorage.getItem('token'), // Check if token exists in localStorage
     token: localStorage.getItem('token') || null,
-    travelEntries: [],
-    isLoading: false
+    travelEntries: {
+      result: [],
+    },
+    isLoading: false,
   },
   mutations: {
     setAuthentication(state, { status, token }) {
-        state.isAuthenticated = status;
-        state.token = token;
-        if (token) {
-          localStorage.setItem('token', token); // Save token to localStorage
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        } else {
-          localStorage.removeItem('token'); // Remove token from localStorage
-          delete axios.defaults.headers.common['Authorization'];
-        }
-      },
+      state.isAuthenticated = status;
+      state.token = token;
+      if (token) {
+        localStorage.setItem('token', token); // Save token to localStorage
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      } else {
+        localStorage.removeItem('token'); // Remove token from localStorage
+        delete axios.defaults.headers.common['Authorization'];
+      }
+    },
     setTravelEntries(state, entries) {
-      state.travelEntries = entries;
+      state.travelEntries.result = entries.result;
     },
     addTravelEntry(state, entry) {
-      state.travelEntries.push(entry);
+      state.travelEntries.result.push(entry);
     },
     setLoading(state, isLoading) {
-        state.isLoading = isLoading;
-    }
+      state.isLoading = isLoading;
+    },
+    CLEAR_AUTH(state) {
+      state.token = null;
+      state.isAuthenticated = false;
+      state.travelEntries = { result: [] };
+    },
   },
   actions: {
     async login({ commit, dispatch }, { username, password }) {
@@ -53,14 +60,13 @@ export default createStore({
       }
     },
     async fetchTravelEntries({ commit }) {
-      commit('setLoading', true); 
+      commit('setLoading', true);
       try {
-        const entries = await getTravelEntries();
-        commit('setTravelEntries', entries);
+        const response = await getTravelEntries();
+        commit('setTravelEntries', response);
       } catch (error) {
         console.error(error.message);
-      }
-      finally {
+      } finally {
         commit('setLoading', false);
       }
     },
@@ -68,8 +74,10 @@ export default createStore({
       try {
         const newEntry = await addTravelEntry(entry);
         commit('addTravelEntry', newEntry);
+        return newEntry;
       } catch (error) {
         console.error(error.message);
+        throw error;
       }
     },
   },
