@@ -56,12 +56,19 @@ export default createStore({
         return false;
       }
     },
-    async register({ commit }, { username, password, fullName }) {
+    async register({ commit }, { username, password, full_name }) {
       try {
-        const data = await register(username, password, fullName);
-        commit('setAuthentication', { status: true, token: data.token });
+        const data = await register(username, password, full_name);
+        
+        // Only commit authentication if a token is present
+        if (data.token) {
+          commit('setAuthentication', { status: true, token: data.token });
+        }
+
+        return data.result;
       } catch (error) {
-        console.error(error.message);
+        console.error('Registration error:', error.message);
+        throw error; // Propagate the error to be handled by the component
       }
     },
     async fetchTravelEntries({ commit }) {

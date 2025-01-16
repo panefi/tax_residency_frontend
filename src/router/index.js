@@ -10,12 +10,7 @@ const routes = [
   { path: '/entries', component: TravelEntries, name: 'TravelEntries' },
   {
     path: '/',
-    redirect: '/login',
-  },
-  {
-    path: '/login',
-    name: 'LoginIn',
-    component: UserLogin,
+    redirect: { path: '/login', query: { register: 'true' } },
   },
 ];
 
