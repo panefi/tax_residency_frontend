@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <form @submit.prevent="login" class="login-form">
+    <form @submit.prevent="login" class="login-form" v-if="!successMessage">
       <h2 class="text-center mb-4">Login</h2>
 
       <!-- Registration Prompt -->
@@ -29,12 +29,13 @@
       </div>
       <button type="submit" class="btn btn-primary btn-block">Login</button>
     </form>
-    <div v-if="error" class="alert alert-danger mt-3">
-      {{ error }}
-    </div>
-    <!-- Display success message from registration -->
-    <div v-if="successMessage" class="alert alert-success mt-3">
-      {{ successMessage }}
+    <div class="message-container">
+      <div v-if="error" class="alert alert-danger">
+        {{ error }}
+      </div>
+      <div v-if="successMessage" class="alert alert-success">
+        {{ successMessage }}
+      </div>
     </div>
   </div>
 </template>
@@ -80,6 +81,7 @@ export default {
 <style scoped>
 .login-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
@@ -110,9 +112,23 @@ export default {
   text-decoration: underline;
 }
 
+.message-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 20px auto 0;
+}
+
+.alert {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 @media (max-width: 600px) {
   .login-form {
     padding: 20px;
+    max-width: 90%;
+  }
+  .message-container {
     max-width: 90%;
   }
 }

@@ -104,15 +104,18 @@ export default {
     };
   },
   computed: {
-    ...mapState(['travelEntries', 'isLoading']),
+    ...mapState({
+      travelEntries: state => state.travelEntries.result,
+      isLoading: state => state.isLoading,
+    }),
     filteredEntries() {
-      if (!this.travelEntries || !Array.isArray(this.travelEntries.result)) {
+      if (!this.travelEntries || !Array.isArray(this.travelEntries)) {
         return [];
       }
       if (this.searchQuery.trim() === '') {
-        return this.travelEntries.result;
+        return this.travelEntries;
       }
-      return this.travelEntries.result.filter((entry) =>
+      return this.travelEntries.filter(entry =>
         entry.destination.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
     },
@@ -142,6 +145,7 @@ export default {
           if (newEntry) {
             this.message = 'Travel entry added successfully!';
             this.messageType = 'success';
+            this.$store.dispatch('fetchTravelEntries');
           } else {
             this.message = 'No data returned from addTravelEntry action.';
             this.messageType = 'warning';
