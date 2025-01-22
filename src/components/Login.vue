@@ -1,5 +1,13 @@
 <template>
   <div class="login-container">
+    <div class="message-container">
+        <div v-if="error" class="alert alert-danger">
+          {{ error }}
+        </div>
+        <div v-if="successMessage" class="alert alert-success">
+          {{ successMessage }}
+        </div>
+      </div>
     <form @submit.prevent="login" class="login-form" v-if="!successMessage">
       <h2 class="text-center mb-4">Login</h2>
 
@@ -8,7 +16,6 @@
         Don't have an account?
         <router-link to="/register">Register here</router-link>.
       </div>
-
       <div class="form-group">
         <input
           type="text"
@@ -29,14 +36,6 @@
       </div>
       <button type="submit" class="btn btn-primary btn-block">Login</button>
     </form>
-    <div class="message-container">
-      <div v-if="error" class="alert alert-danger">
-        {{ error }}
-      </div>
-      <div v-if="successMessage" class="alert alert-success">
-        {{ successMessage }}
-      </div>
-    </div>
   </div>
 </template>
 
@@ -71,7 +70,12 @@ export default {
         });
         this.$router.push('/entries');
       } catch (err) {
-        this.error = 'Login failed. Please check your credentials.';
+        // this.error = 'Login failed. Please check your credentials.';
+        if (err.response && err.response.data && err.response.data.detail === "Invalid username or password") {
+          this.error = 'Please enter a correct username and password. Note that both fields may be case-sensitive.';
+        } else {
+          this.error = 'Login failed. Please try again.';
+        }
       }
     },
   },
@@ -81,6 +85,7 @@ export default {
 <style scoped>
 .login-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
@@ -95,6 +100,12 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+}
+
+.message-container {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 10px;
 }
 
 .form-group {
@@ -112,7 +123,8 @@ export default {
 }
 
 @media (max-width: 600px) {
-  .login-form {
+  .login-form,
+  .message-container {
     padding: 20px;
     max-width: 90%;
   }

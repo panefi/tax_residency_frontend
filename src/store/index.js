@@ -42,18 +42,12 @@ export default createStore({
   },
   actions: {
     async login({ commit, dispatch }, { username, password }) {
-      try {
-        const response = await login(username, password);
-        if (response.token) {
-          commit('setAuthentication', { status: true, token: response.token });
-          await dispatch('fetchTravelEntries');
-          return true;
-        } else {
-          console.error('Login failed: No token received');
-          return false;
-        }
-      } catch (error) {
-        console.error('Login error:', error.message);
+      const response = await login(username, password);
+      if (response.token) {
+        commit('setAuthentication', { status: true, token: response.token });
+        await dispatch('fetchTravelEntries');
+        return true;
+      } else {
         return false;
       }
     },
