@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h2>Travel Entries</h2>
-    
+  <div>    
     <!-- Display Custom Alert -->
     <AlertMessage
       :message="message"
@@ -30,7 +28,9 @@
       </div>
 
       <!-- Add Trip Button -->
-      <button @click="addEntry" class="btn btn-success mb-3">Add Trip</button>
+      <div class="mb-3 d-flex justify-content-start">
+        <button @click="addEntry" class="btn btn-success">Add Trip</button>
+      </div>
 
       <!-- Add Trip Modal -->
       <AddTravelEntryModal
@@ -84,8 +84,8 @@
 
 <script>
 import { mapState } from 'vuex';
-import AddTravelEntryModal from './AddTravelEntryModal.vue';
-import AlertMessage from './AlertMessage.vue';
+import AddTravelEntryModal from '../components/AddTravelEntryModal.vue';
+import AlertMessage from '../components/AlertMessage.vue';
 
 export default {
   name: 'TravelEntries',
@@ -187,51 +187,11 @@ export default {
 </script>
 
 <style scoped>
-.card-img-top {
-  height: 200px;
-  object-fit: cover;
-}
-
-.card-title {
-  font-weight: bold;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  border: none;
-}
-
-/* Additional Styles */
-.spinner-border {
-  width: 3rem;
-  height: 3rem;
-}
-
-/* Custom Table Styles */
+.btn-success {
+        margin-left: 10px;
+      }
 th,
 td {
   vertical-align: middle;
-}
-
-.btn-sm {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
-}
-
-/* Alert Styles */
-.alert {
-  position: relative;
-  padding: 0.75rem 1.25rem;
-  margin-bottom: 1rem;
-  border: 1px solid transparent;
-  border-radius: 0.25rem;
-}
-.btn-close {
-  position: absolute;
-  top: 0;
-  right: 0.75rem;
-  padding: 1rem;
-  background: none;
-  border: none;
 }
 </style>

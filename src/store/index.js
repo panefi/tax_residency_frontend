@@ -37,6 +37,7 @@ export default createStore({
       state.token = null;
       state.isAuthenticated = false;
       state.travelEntries = { result: [] };
+      delete axios.defaults.headers.common['Authorization'];
     },
   },
   actions: {

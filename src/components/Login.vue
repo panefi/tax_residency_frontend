@@ -81,7 +81,6 @@ export default {
 <style scoped>
 .login-container {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
@@ -112,23 +111,9 @@ export default {
   text-decoration: underline;
 }
 
-.message-container {
-  width: 100%;
-  max-width: 400px;
-  margin: 20px auto 0;
-}
-
-.alert {
-  width: 100%;
-  box-sizing: border-box;
-}
-
 @media (max-width: 600px) {
   .login-form {
     padding: 20px;
-    max-width: 90%;
-  }
-  .message-container {
     max-width: 90%;
   }
 }
