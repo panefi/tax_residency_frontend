@@ -1,5 +1,8 @@
 <template>
   <div class="login-container">
+    <div class="description">
+      <p>Simplifying tax residency for the modern nomad.</p>
+    </div>
     <div class="message-container">
         <div v-if="error" class="alert alert-danger">
           {{ error }}
@@ -91,6 +94,13 @@ export default {
   min-height: 100vh;
   padding: 20px;
   background-color: #f5f5f5;
+}
+
+.description {
+  /* margin-bottom: 20px; */
+  font-size: 1.4em;
+  color: #555;
+  text-align: center;
 }
 
 .login-form {

@@ -1,5 +1,8 @@
 <template>
   <div class="register-container">
+    <div class="description">
+      <p>Simplifying tax residency for the modern nomad.</p>
+    </div>
     <form @submit.prevent="register" class="register-form" v-if="!successMessage">
       <h2 class="text-center mb-4">Register</h2>
       <div class="form-group">
@@ -86,6 +89,13 @@ export default {
   min-height: 100vh;
   padding: 20px;
   background-color: #f5f5f5;
+}
+
+.description {
+  margin-bottom: 20px;
+  font-size: 1.4em;
+  color: #555;
+  text-align: center;
 }
 
 .register-form {
