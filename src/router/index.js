@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import UserRegister from '../views/Register.vue';
-import UserLogin from '../components/Login.vue';
+import UserLogin from '../views/Login.vue';
 import TravelEntries from '../views/TravelEntries.vue';
 import store from '../store';
 
@@ -20,10 +20,14 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token');
   const isAuthenticated = store.state.isAuthenticated;
-
-  if (!isAuthenticated && to.path !== '/login' && to.path !== '/register') {
-    next('/login');
+  if (
+    (to.path === '/login' || to.path === '/register') &&
+    token &&
+    isAuthenticated
+  ) {
+    next('/entries');
   } else {
     next();
   }
