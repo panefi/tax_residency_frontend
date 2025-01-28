@@ -1,5 +1,5 @@
 <template>
-  <div>    
+  <div class="container my-4">    
     <!-- Display Custom Alert -->
     <AlertMessage
       :message="message"
@@ -9,13 +9,17 @@
     
     <div v-if="isLoading">
       <!-- Loading Spinner -->
-      <div class="d-flex justify-content-center">
         <div class="spinner-border" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
       </div>
-    </div>
     <div v-else>
+      <!-- Country Residence Modal -->
+      <CountryResidenceModal
+        :isVisible="isTaxResidencyModalVisible"
+        @country-selected="handleCountrySelected"
+      />
+
       <!-- Search Bar -->
       <div class="mb-3">
         <input
@@ -86,12 +90,14 @@
 import { mapState } from 'vuex';
 import AddTravelEntryModal from '../components/AddTravelEntryModal.vue';
 import AlertMessage from '../components/AlertMessage.vue';
+import CountryResidenceModal from '../components/CountryResidenceModal.vue';
 
 export default {
   name: 'TravelEntries',
   components: {
     AddTravelEntryModal,
     AlertMessage,
+    CountryResidenceModal,
   },
   data() {
     return {
@@ -101,12 +107,14 @@ export default {
       searchQuery: '',
       message: '',
       messageType: '',
+      isTaxResidencyModalVisible: false,
     };
   },
   computed: {
     ...mapState({
       travelEntries: state => state.travelEntries.result,
       isLoading: state => state.isLoading,
+      countryOfResidence: state => state.countryOfResidence,
     }),
     filteredEntries() {
       if (!this.travelEntries || !Array.isArray(this.travelEntries)) {
@@ -169,6 +177,17 @@ export default {
       this.message = '';
       this.messageType = '';
     },
+    async handleCountrySelected(countryName) {
+      try {
+        await this.$store.dispatch('updateUserProfile', { country_of_residence: countryName });
+        this.isTaxResidencyModalVisible = false;
+        await this.$store.dispatch('fetchTravelEntries');
+        this.$router.push('/entries');
+      } catch (error) {
+        this.message = 'Failed to update country of residence. Please try again.';
+        this.messageType = 'error';
+      }
+    },
   },
   mounted() {
     if (this.$store.state.isAuthenticated) {
@@ -178,6 +197,10 @@ export default {
           console.error('Failed to fetch entries:', error);
           alert('Failed to fetch travel entries.');
         });
+
+      if (!this.countryOfResidence) {
+        this.isTaxResidencyModalVisible = true;
+      }
     } else {
       // If not authenticated, redirect to login
       this.$router.push('/login');
@@ -188,8 +211,8 @@ export default {
 
 <style scoped>
 .btn-success {
-        margin-left: 10px;
-      }
+    margin-left: 10px;
+  }
 th,
 td {
   vertical-align: middle;

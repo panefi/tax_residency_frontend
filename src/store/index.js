@@ -2,6 +2,7 @@ import { createStore } from 'vuex';
 import axios from 'axios';
 import { login, register } from '../api/auth';
 import { getTravelEntries, addTravelEntry } from '../api/travelEntries';
+import { getUserProfile, updateUserProfile as apiUpdateUserProfile } from '../api/users';
 
 export default createStore({
   state: {
@@ -11,6 +12,7 @@ export default createStore({
       result: [],
     },
     isLoading: false,
+    countryOfResidence: localStorage.getItem('countryOfResidence') || '', // Initialize from localStorage or default to empty string
   },
   mutations: {
     setAuthentication(state, { status, token }) {
@@ -38,28 +40,39 @@ export default createStore({
       state.isAuthenticated = false;
       state.travelEntries = { result: [] };
       delete axios.defaults.headers.common['Authorization'];
+      state.countryOfResidence = ''; // Reset countryOfResidence on logout
+      localStorage.removeItem('countryOfResidence'); // Remove from localStorage
+    },
+    SET_COUNTRY_OF_RESIDENCE(state, country) {
+      state.countryOfResidence = country;
+      localStorage.setItem('countryOfResidence', country); // Persist to localStorage
     },
   },
   actions: {
     async login({ commit, dispatch }, { username, password }) {
-      const response = await login(username, password);
-      if (response.token) {
-        commit('setAuthentication', { status: true, token: response.token });
-        await dispatch('fetchTravelEntries');
-        return true;
-      } else {
-        return false;
+      try {
+        const response = await login(username, password);
+        if (response.token) {
+          commit('setAuthentication', { status: true, token: response.token });
+          await dispatch('fetchUserProfile'); // Fetch user profile after login
+          await dispatch('fetchTravelEntries');
+          return true;
+        } else {
+          return false;
+        }
+      } catch (error) {
+        console.error('Login error:', error.message);
+        throw error;
       }
     },
-    async register({ commit }, { username, password, full_name }) {
+    async register({ commit, dispatch }, { username, password, full_name }) {
       try {
         const data = await register(username, password, full_name);
-        
         // Only commit authentication if a token is present
         if (data.token) {
           commit('setAuthentication', { status: true, token: data.token });
+          await dispatch('fetchUserProfile'); // Fetch user profile after registration
         }
-
         return data.result;
       } catch (error) {
         console.error('Registration error:', error.message);
@@ -72,7 +85,7 @@ export default createStore({
         const response = await getTravelEntries();
         commit('setTravelEntries', response);
       } catch (error) {
-        console.error(error.message);
+        console.error('Fetch Travel Entries error:', error.message);
       } finally {
         commit('setLoading', false);
       }
@@ -83,9 +96,39 @@ export default createStore({
         commit('addTravelEntry', newEntry);
         return newEntry;
       } catch (error) {
-        console.error(error.message);
+        console.error('Add Travel Entry error:', error.message);
         throw error;
       }
     },
+    async fetchUserProfile({ commit }) {
+      try {
+        const profile = await getUserProfile();
+        if (profile.result[0].country_of_residence) {
+          commit('SET_COUNTRY_OF_RESIDENCE', profile.result[0].country_of_residence);
+        }
+        return profile;
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error.message);
+        throw error;
+      }
+    },
+    async updateUserProfile({ commit }, profileData) {
+      try {
+        const updatedProfile = await apiUpdateUserProfile(profileData);
+        commit('SET_COUNTRY_OF_RESIDENCE', updatedProfile.country_of_residence);
+        return updatedProfile;
+      } catch (error) {
+        console.error('Failed to update user profile:', error.message);
+        throw error;
+      }
+    },
+    SET_COUNTRY_OF_RESIDENCE({ commit }, country) {
+      commit('SET_COUNTRY_OF_RESIDENCE', country);
+    },
+  },
+  getters: {
+    countryOfResidence: (state) => state.countryOfResidence,
+    travelEntries: (state) => state.travelEntries.result,
+    isLoading: (state) => state.isLoading,
   },
 }); 

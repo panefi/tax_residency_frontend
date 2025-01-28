@@ -19,15 +19,25 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const token = localStorage.getItem('token');
   const isAuthenticated = store.state.isAuthenticated;
-  if (
-    (to.path === '/login' || to.path === '/register') &&
-    token &&
-    isAuthenticated
-  ) {
-    next('/entries');
+
+  if ((to.path === '/login' || to.path === '/register') && token && isAuthenticated) {
+    try {
+      console.log('Fetching user profile...');
+      await store.dispatch('fetchUserProfile');
+      if (store.getters.countryOfResidence) {
+        next('/entries');
+      } else {
+        next(); // Let TravelEntries handle showing the modal
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      next('/login');
+    }
+  } else if (to.path === '/entries' && (!token || !isAuthenticated)) {
+    next('/login');
   } else {
     next();
   }
