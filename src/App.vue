@@ -39,4 +39,13 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
+
+.navbar-brand {
+  margin-left: 40px;
+}
+
+.nav-item {
+  margin-right: 40px;
+}
+
 </style>
