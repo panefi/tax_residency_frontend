@@ -43,45 +43,19 @@
         @close="showAddModal = false"
       />
 
-      <!-- Responsive Table -->
-      <div class="table-responsive">
-        <table class="table table-striped table-hover">
-          <thead class="table-dark">
-            <tr>
-              <th scope="col">Destination</th>
-              <th scope="col">Depart</th>
-              <th scope="col">Return</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="entry in paginatedEntries" :key="entry.id">
-              <td>{{ entry.destination }}</td>
-              <td>{{ entry.departure }}</td>
-              <td>{{ entry.arrival }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <!-- Travel Entries Table -->
+      <TravelEntriesTable
+        :entries="filteredEntries"
+        :isDisabled="isTaxResidencyModalVisible"
+        :entriesPerPage="entriesPerPage"
+      />
 
-      <!-- Pagination Controls -->
-      <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
-          <li class="page-item" :class="{ disabled: currentPage === 1 }">
-            <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
-          </li>
-          <li
-            class="page-item"
-            v-for="page in totalPages"
-            :key="page"
-            :class="{ active: currentPage === page }"
-          >
-            <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-          </li>
-          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-            <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
-          </li>
-        </ul>
-      </nav>
+      <!-- Optional: Add a loading indicator -->
+      <div v-if="isLoading" class="text-center my-3">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -91,6 +65,7 @@ import { mapState } from 'vuex';
 import AddTravelEntryModal from '../components/AddTravelEntryModal.vue';
 import AlertMessage from '../components/AlertMessage.vue';
 import CountryResidenceModal from '../components/CountryResidenceModal.vue';
+import TravelEntriesTable from '../components/TravelEntriesTable.vue';
 
 export default {
   name: 'TravelEntries',
@@ -98,6 +73,7 @@ export default {
     AddTravelEntryModal,
     AlertMessage,
     CountryResidenceModal,
+    TravelEntriesTable,
   },
   data() {
     return {
@@ -126,14 +102,6 @@ export default {
       return this.travelEntries.filter(entry =>
         entry.destination.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
-    },
-    totalPages() {
-      return Math.ceil(this.filteredEntries.length / this.entriesPerPage);
-    },
-    paginatedEntries() {
-      const start = (this.currentPage - 1) * this.entriesPerPage;
-      const end = start + this.entriesPerPage;
-      return this.filteredEntries.slice(start, end);
     },
     messageClass() {
       if (this.messageType === 'success') return 'alert-success';
@@ -165,14 +133,6 @@ export default {
           this.messageType = 'error';
         });
     },
-    changePage(page) {
-      if (page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;
-      }
-    },
-    filterEntries() {
-      this.currentPage = 1;
-    },
     clearMessage() {
       this.message = '';
       this.messageType = '';
@@ -187,6 +147,9 @@ export default {
         this.message = 'Failed to update country of residence. Please try again.';
         this.messageType = 'error';
       }
+    },
+    filterEntries() {
+      this.currentPage = 1;
     },
   },
   mounted() {
