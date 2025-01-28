@@ -33,7 +33,7 @@
 
       <!-- Add Trip Button -->
       <div class="mb-3 d-flex justify-content-start">
-        <button @click="addEntry" class="btn btn-success">Add Trip</button>
+        <button @click="addEntry" class="btn btn-dark">Add New Trip</button>
       </div>
 
       <!-- Add Trip Modal -->
