@@ -2,8 +2,10 @@
   <div id="app">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-        <router-link class="navbar-brand" to="/">GlobalTaxTracker</router-link>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+        <router-link class="navbar-brand" to="/">
+             <img src="/Artboard.png" alt="Artboard Icon" class="icon">
+           </router-link>        
+          <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
           <ul class="navbar-nav mb-2 mb-lg-0">
             <li class="nav-item" v-if="isAuthenticated">
               <LogoutButton />
@@ -46,6 +48,11 @@ export default {
 
 .nav-item {
   margin-right: 40px;
+}
+
+.icon {
+  width: 50px;
+  height: 50px;
 }
 
 </style>
