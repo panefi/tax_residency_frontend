@@ -117,8 +117,9 @@ export default {
 }
 
 .table-primary th {
-  background-color: #0e0f0e99;
+  background-color: #0F4079;
   color: #fff;
+  font-size: 1.2rem;
 }
 
 .table-hover tbody tr:hover {
@@ -127,18 +128,18 @@ export default {
 }
 
 .pagination .page-link {
-  color: #0d6efd;
+  color: #013974;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .pagination .page-link:hover {
-  background-color: #0d6efd;
+  background-color: #013974;
   color: #fff;
 }
 
 .pagination .active .page-link {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: #013974;
+  border-color: #013974;
   color: #fff;
 }
 

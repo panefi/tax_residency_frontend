@@ -1,5 +1,5 @@
 <template>
-    <button class="btn btn-danger" @click="logout"> 
+    <button class="btn btn-light" @click="logout"> 
         Logout
     </button>
 </template>
@@ -18,7 +18,9 @@ export default {
 </script>
 
 <style scoped>
-.btn-danger {
+.btn-light {
     margin-left: 10px;
+    background-color: #013974;
+    color: white;
 }
 </style>

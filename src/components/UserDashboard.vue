@@ -3,7 +3,7 @@
       <div class="row">
         <!-- Total Days Outside -->
         <div class="col-md-6">
-          <div class="card text-white bg-warning shadow">
+          <div class="card text-white bg-days-outside shadow">
             <div class="card-body">
               <h5 class="card-title"><i class="fas fa-plane-departure"></i> Days Outside <span class="float-end"><i class="fas fa-calendar-alt"></i></span></h5>
               <p class="card-text display-4">{{ totalDaysOutside }}</p>
@@ -14,7 +14,7 @@
         
         <!-- Compliance Status -->
         <div class="col-md-6">
-          <div class="card text-white bg-success shadow">
+          <div class="card text-white bg-compliance shadow">
             <div class="card-body">
               <h5 class="card-title"><i class="fas fa-check-circle"></i> Compliance Status <span class="float-end"><i class="fas fa-info-circle"></i></span></h5>
               <p class="card-text display-4">{{ complianceStatus }}</p>
@@ -50,7 +50,6 @@
 
 <style scoped>
 
-
 .card-title i {
 margin-right: 10px;
 }
@@ -59,4 +58,14 @@ margin-right: 10px;
 font-size: 1.5rem;
 font-weight: bold;
 }
+
+.bg-compliance {
+    background-color: #BF75BA;
+}
+
+.bg-days-outside {
+    background-color: #67B6C2;
+    ;
+}
+
 </style> 

@@ -5,7 +5,7 @@ import { getTravelEntries, addTravelEntry } from '../api/travelEntries';
 import { getUserProfile, updateUserProfile as apiUpdateUserProfile } from '../api/users';
 import { differenceInCalendarDays } from 'date-fns'; // Importing date-fns function
 
-export default createStore({
+const store = createStore({
   state: {
     isAuthenticated: !!localStorage.getItem('token'), // Check if token exists in localStorage
     token: localStorage.getItem('token') || null,
@@ -14,7 +14,7 @@ export default createStore({
     },
     isLoading: false,
     userProfile: {}, // Add userProfile to state
-    countryOfResidence: localStorage.getItem('countryOfResidence') || null,
+    countryOfResidence: localStorage.getItem('countryOfResidence') || '', // Initialize from localStorage or default to empty string
   },
   mutations: {
     setAuthentication(state, { status, token }) {
@@ -42,8 +42,10 @@ export default createStore({
       state.isAuthenticated = false;
       state.travelEntries = { result: [] };
       delete axios.defaults.headers.common['Authorization'];
-      state.countryOfResidence = null; // Reset countryOfResidence on logout
+      state.countryOfResidence = ''; // Reset countryOfResidence on logout
+      state.userProfile = {}; // Reset userProfile
       localStorage.removeItem('countryOfResidence'); // Remove from localStorage
+      localStorage.removeItem('token'); // Remove token from localStorage
     },
     SET_COUNTRY_OF_RESIDENCE(state, country) {
       state.countryOfResidence = country;
@@ -199,4 +201,20 @@ export default createStore({
       return totalDays;
     },
   },
-}); 
+});
+
+// Axios Response Interceptor
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response && error.response.status === 401) {
+      // Commit the CLEAR_AUTH mutation to clear authentication state
+      store.commit('CLEAR_AUTH');
+      // Redirect to the login page
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default store; 

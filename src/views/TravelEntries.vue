@@ -24,16 +24,11 @@
       <div class="mb-3">
         <input
           type="text"
-          class="form-control"
+          class="form-control search-bar"
           placeholder="Search by Destination"
           v-model="searchQuery"
           @input="filterEntries"
         />
-      </div>
-
-      <!-- Add Trip Button -->
-      <div class="mb-3 d-flex justify-content-start">
-        <button @click="addEntry" class="btn btn-dark">Add New Trip</button>
       </div>
 
       <!-- Add Trip Modal -->
@@ -46,6 +41,10 @@
       <!-- Dashboard Component -->
       <UserDashboard />
 
+      <!-- Add Trip Button -->
+      <div class="mb-3 d-flex justify-content-start">
+        <button @click="addEntry" class="btn btn-light">Add Trip</button>
+      </div>
       <!-- Travel Entries Table -->
       <TravelEntriesTable
         :entries="filteredEntries"
@@ -178,10 +177,24 @@ export default {
 
 <style scoped>
 .btn-success {
-    margin-left: 10px;
-  }
+  margin-left: 10px;
+}
 th,
 td {
   vertical-align: middle;
+}
+
+.btn-light {
+  font-weight: bold;
+  background-color: #5d738a;
+  color: white;
+  height: 60px;
+  font-size: 1.2rem;
+}
+
+.search-bar {
+  font-size: 1.2rem;
+  height: 50px;
+  border: 2px solid #ccc;
 }
 </style>

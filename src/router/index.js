@@ -12,6 +12,8 @@ const routes = [
     path: '/',
     redirect: { path: '/login', query: { register: 'true' } },
   },
+  // Catch-all route
+  { path: '/:pathMatch(.*)*', redirect: '/login' },
 ];
 
 const router = createRouter({
@@ -23,16 +25,24 @@ router.beforeEach(async (to, from, next) => {
   const token = localStorage.getItem('token');
   const isAuthenticated = store.state.isAuthenticated;
 
-  if ((to.path === '/login' || to.path === '/register') && token && isAuthenticated) {
-    try {
-      await store.dispatch('fetchUserProfile');
-      if (store.getters.countryOfResidence) {
-        next('/entries');
-      } else {
-        next(); // Let TravelEntries handle showing the modal
+  // Define routes that do not require authentication
+  const publicRoutes = ['/login', '/register'];
+
+  if (!publicRoutes.includes(to.path)) {
+    if (token && isAuthenticated) {
+      try {
+        await store.dispatch('fetchUserProfile');
+        if (store.getters.countryOfResidence) {
+          next();
+        } else {
+          next('/entries'); // Or any other route as per your logic
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        store.commit('CLEAR_AUTH'); // Clear authentication state
+        next('/login');
       }
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
+    } else {
       next('/login');
     }
   } else {
