@@ -11,7 +11,7 @@
         <option v-for="country in countries" :key="country" :value="country">{{ country.name }}</option>
       </select>
       <div class="modal-actions d-flex justify-content-end">
-        <button :disabled="!selectedCountry" @click="submitForm" class="btn btn-primary">Submit</button>
+        <button :disabled="!selectedCountry" @click="confirmSelection" class="btn btn-primary">Submit</button>
       </div>
     </div>
   </div>
@@ -19,6 +19,7 @@
 
 <script>
 import { countries } from "countries-list";
+import { mapActions } from 'vuex';
 
 export default {
   name: 'CountryResidenceModal',
@@ -30,19 +31,21 @@ export default {
   },
   data() {
     return {
-      selectedCountry: '',
+      selectedCountry: null,
       countries: Object.values(countries),
     };
   },
   computed: {
     isCountrySelected() {
-      return this.selectedCountry !== '';
+      return this.selectedCountry !== null;
     },
   },
   methods: {
-    submitForm() {
+    ...mapActions(['setCountryOfResidence']),
+    confirmSelection() {
       if (this.selectedCountry) {
-        this.$store.dispatch('SET_COUNTRY_OF_RESIDENCE', this.selectedCountry);
+        console.log('selectedCountry', this.selectedCountry);
+        this.setCountryOfResidence(this.selectedCountry.name);
         this.$emit('country-selected', this.selectedCountry.name);
       }
     },

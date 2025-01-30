@@ -14,7 +14,7 @@ export default createStore({
     },
     isLoading: false,
     userProfile: {}, // Add userProfile to state
-    countryOfResidence: localStorage.getItem('countryOfResidence') || '', // Initialize from localStorage or default to empty string
+    countryOfResidence: localStorage.getItem('countryOfResidence') || null,
   },
   mutations: {
     setAuthentication(state, { status, token }) {
@@ -42,7 +42,7 @@ export default createStore({
       state.isAuthenticated = false;
       state.travelEntries = { result: [] };
       delete axios.defaults.headers.common['Authorization'];
-      state.countryOfResidence = ''; // Reset countryOfResidence on logout
+      state.countryOfResidence = null; // Reset countryOfResidence on logout
       localStorage.removeItem('countryOfResidence'); // Remove from localStorage
     },
     SET_COUNTRY_OF_RESIDENCE(state, country) {
@@ -120,6 +120,7 @@ export default createStore({
     },
     setCountryOfResidence({ commit }, country) {
       commit('SET_COUNTRY_OF_RESIDENCE', country);
+      localStorage.setItem('countryOfResidence', country);
     },
     updateUserProfile({ commit }, profileData) {
       return apiUpdateUserProfile(profileData).then(updatedProfile => {
