@@ -3,6 +3,7 @@ import axios from 'axios';
 import { login, register } from '../api/auth';
 import { getTravelEntries, addTravelEntry } from '../api/travelEntries';
 import { getUserProfile, updateUserProfile as apiUpdateUserProfile } from '../api/users';
+import { differenceInCalendarDays } from 'date-fns'; // Importing date-fns function
 
 export default createStore({
   state: {
@@ -122,13 +123,71 @@ export default createStore({
         throw error;
       }
     },
-    SET_COUNTRY_OF_RESIDENCE({ commit }, country) {
+    setCountryOfResidence({ commit }, country) {
       commit('SET_COUNTRY_OF_RESIDENCE', country);
     },
   },
   getters: {
-    countryOfResidence: (state) => state.countryOfResidence,
     travelEntries: (state) => state.travelEntries.result,
     isLoading: (state) => state.isLoading,
+    countryOfResidence: (state) => state.countryOfResidence,
+    isAuthenticated: (state) => state.isAuthenticated,
+    // New Getter: Total Days Outside Country on a Rolling Basis (Past Year)
+    totalDaysOutsideCountryRolling: (state) => {
+      if (!state.countryOfResidence) return 0;
+
+      const today = new Date();
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(today.getFullYear() - 1);
+
+      let dateRanges = [];
+
+      // Collect overlapping date ranges
+      state.travelEntries.result.forEach((entry) => {
+        const departureDate = new Date(entry.departure);
+        const arrivalDate = entry.arrival ? new Date(entry.arrival) : today; // If no arrival, assume ongoing trip up to today
+
+        // Find overlap with the past year
+        const tripStart = departureDate < oneYearAgo ? oneYearAgo : departureDate;
+        const tripEnd = arrivalDate > today ? today : arrivalDate;
+
+        if (tripStart > tripEnd) return; // No overlap
+
+        dateRanges.push({ start: tripStart, end: tripEnd });
+      });
+
+      if (dateRanges.length === 0) return 0;
+
+      // Sort date ranges by start date
+      dateRanges.sort((a, b) => a.start - b.start);
+
+      // Merge overlapping date ranges
+      const mergedRanges = [];
+      let currentRange = dateRanges[0];
+
+      for (let i = 1; i < dateRanges.length; i++) {
+        const range = dateRanges[i];
+        if (range.start <= currentRange.end) {
+          // Overlapping ranges, merge them
+          currentRange.end = new Date(Math.max(currentRange.end, range.end));
+        } else {
+          // Non-overlapping, push the current and reset
+          mergedRanges.push(currentRange);
+          currentRange = range;
+        }
+      }
+
+      // Push the last range
+      mergedRanges.push(currentRange);
+
+      // Calculate total days
+      let totalDays = 0;
+      mergedRanges.forEach((range) => {
+        const days = differenceInCalendarDays(range.end, range.start) + 1; // +1 to include both start and end days
+        totalDays += days;
+      });
+
+      return totalDays;
+    },
   },
 }); 

@@ -43,6 +43,9 @@
         @close="showAddModal = false"
       />
 
+      <!-- Dashboard Component -->
+      <UserDashboard />
+
       <!-- Travel Entries Table -->
       <TravelEntriesTable
         :entries="filteredEntries"
@@ -64,6 +67,7 @@
 import { mapState } from 'vuex';
 import AddTravelEntryModal from '../components/AddTravelEntryModal.vue';
 import AlertMessage from '../components/AlertMessage.vue';
+import UserDashboard from '../components/UserDashboard.vue';
 import CountryResidenceModal from '../components/CountryResidenceModal.vue';
 import TravelEntriesTable from '../components/TravelEntriesTable.vue';
 
@@ -74,6 +78,7 @@ export default {
     AlertMessage,
     CountryResidenceModal,
     TravelEntriesTable,
+    UserDashboard, // Register Dashboard component
   },
   data() {
     return {
@@ -93,9 +98,8 @@ export default {
       countryOfResidence: state => state.countryOfResidence,
     }),
     filteredEntries() {
-      if (!this.travelEntries || !Array.isArray(this.travelEntries)) {
-        return [];
-      }
+      if (!this.travelEntries || !Array.isArray(this.travelEntries)) return [];
+
       if (this.searchQuery.trim() === '') {
         return this.travelEntries;
       }

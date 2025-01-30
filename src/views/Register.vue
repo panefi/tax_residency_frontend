@@ -66,7 +66,6 @@ export default {
           password: this.password,
           full_name: this.full_name,
         });
-        console.log(response);
         this.successMessage = response;
       } catch (err) {
         if (err.message) {
