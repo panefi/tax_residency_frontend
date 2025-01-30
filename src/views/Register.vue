@@ -3,7 +3,7 @@
     <div class="description">
       <p>Simplifying tax residency for the modern nomad.</p>
     </div>
-    <form @submit.prevent="register" class="register-form" v-if="!successMessage">
+    <form @submit.prevent="register" class="register-form">
       <h2 class="text-center mb-4">Register</h2>
       <div class="form-group">
         <input
@@ -38,10 +38,6 @@
       <div v-if="error" class="alert alert-danger">
         {{ error }}
       </div>
-      <div v-if="successMessage" class="alert alert-success">
-        {{ successMessage }}
-        <router-link to="/login" class="btn btn-primary mt-2">Go to Login</router-link>
-      </div>
     </div>
   </div>
 </template>
@@ -55,7 +51,6 @@ export default {
       password: '',
       full_name: '',
       error: '',
-      successMessage: '',
     };
   },
   methods: {
@@ -66,7 +61,9 @@ export default {
           password: this.password,
           full_name: this.full_name,
         });
-        this.successMessage = response;
+        if (response) {
+          this.$router.push('/entries');
+        }
       } catch (err) {
         if (err.message) {
           this.error = err.message;

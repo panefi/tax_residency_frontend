@@ -32,10 +32,7 @@
   export default {
     name: 'UserDashboard',
     computed: {
-      ...mapGetters(['totalDaysOutsideCountryRolling']),
-      countryOfResidence() {
-        return this.$store.state.countryOfResidence;
-      },
+      ...mapGetters(['totalDaysOutsideCountryRolling','countryOfResidence', 'travelEntries', 'userProfile']),
       totalDaysOutside() {
         return this.totalDaysOutsideCountryRolling;
       },

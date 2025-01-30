@@ -13,6 +13,7 @@ export default createStore({
       result: [],
     },
     isLoading: false,
+    userProfile: {}, // Add userProfile to state
     countryOfResidence: localStorage.getItem('countryOfResidence') || '', // Initialize from localStorage or default to empty string
   },
   mutations: {
@@ -21,10 +22,10 @@ export default createStore({
       state.token = token;
       if (token) {
         localStorage.setItem('token', token); // Save token to localStorage
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // Set Axios header
       } else {
         localStorage.removeItem('token'); // Remove token from localStorage
-        delete axios.defaults.headers.common['Authorization'];
+        delete axios.defaults.headers.common['Authorization']; // Remove Axios header
       }
     },
     setTravelEntries(state, entries) {
@@ -48,8 +49,25 @@ export default createStore({
       state.countryOfResidence = country;
       localStorage.setItem('countryOfResidence', country); // Persist to localStorage
     },
+    SET_USER_PROFILE(state, profile) {
+      state.userProfile = profile;
+    },
   },
   actions: {
+    async register({ commit, dispatch }, { username, password, full_name }) {
+      try {
+        const data = await register(username, password, full_name);
+        // Only commit authentication if a token is present
+        if (data.token) {
+          commit('setAuthentication', { status: true, token: data.token });
+          await dispatch('fetchUserProfile'); // Fetch user profile after registration
+        }
+        return data.result;
+      } catch (error) {
+        console.error('Registration error:', error.message);
+        throw error; // Propagate the error to be handled by the component
+      }
+    },
     async login({ commit, dispatch }, { username, password }) {
       try {
         const response = await login(username, password);
@@ -64,20 +82,6 @@ export default createStore({
       } catch (error) {
         console.error('Login error:', error.message);
         throw error;
-      }
-    },
-    async register({ commit, dispatch }, { username, password, full_name }) {
-      try {
-        const data = await register(username, password, full_name);
-        // Only commit authentication if a token is present
-        if (data.token) {
-          commit('setAuthentication', { status: true, token: data.token });
-          await dispatch('fetchUserProfile'); // Fetch user profile after registration
-        }
-        return data.result;
-      } catch (error) {
-        console.error('Registration error:', error.message);
-        throw error; // Propagate the error to be handled by the component
       }
     },
     async fetchTravelEntries({ commit }) {
@@ -107,24 +111,27 @@ export default createStore({
         if (profile.result[0].country_of_residence) {
           commit('SET_COUNTRY_OF_RESIDENCE', profile.result[0].country_of_residence);
         }
+        commit('SET_USER_PROFILE', profile.result[0]); // Store user profile
         return profile;
       } catch (error) {
         console.error('Failed to fetch user profile:', error.message);
         throw error;
       }
     },
-    async updateUserProfile({ commit }, profileData) {
-      try {
-        const updatedProfile = await apiUpdateUserProfile(profileData);
-        commit('SET_COUNTRY_OF_RESIDENCE', updatedProfile.country_of_residence);
-        return updatedProfile;
-      } catch (error) {
-        console.error('Failed to update user profile:', error.message);
-        throw error;
-      }
-    },
     setCountryOfResidence({ commit }, country) {
       commit('SET_COUNTRY_OF_RESIDENCE', country);
+    },
+    updateUserProfile({ commit }, profileData) {
+      return apiUpdateUserProfile(profileData).then(updatedProfile => {
+        commit('SET_USER_PROFILE', updatedProfile);
+        if (updatedProfile.country_of_residence) {
+          commit('SET_COUNTRY_OF_RESIDENCE', updatedProfile.country_of_residence);
+        }
+        return updatedProfile;
+      }).catch(error => {
+        console.error('Failed to update user profile:', error.message);
+        throw error;
+      });
     },
   },
   getters: {
@@ -132,6 +139,7 @@ export default createStore({
     isLoading: (state) => state.isLoading,
     countryOfResidence: (state) => state.countryOfResidence,
     isAuthenticated: (state) => state.isAuthenticated,
+    userProfile: (state) => state.userProfile, // Getter for userProfile
     // New Getter: Total Days Outside Country on a Rolling Basis (Past Year)
     totalDaysOutsideCountryRolling: (state) => {
       if (!state.countryOfResidence) return 0;
